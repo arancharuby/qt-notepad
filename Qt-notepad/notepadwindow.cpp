@@ -1,0 +1,119 @@
+#include "notepadwindow.h"
+
+
+NotepadWindow::NotepadWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+      txtEditor_ = new QPlainTextEdit(this);
+
+      setCentralWidget(txtEditor_);
+
+      // inicializamos los menus
+      mainMenu_ = new QMenuBar(this);
+
+      mnuArchivo_ = new QMenu(tr("&Archivo"), this); // tr es una funcion de QT.TR traduce el lenguaje de texto
+      //el & es para que en el menu al ejecurtarlo salgo el subrayado debajo de la A y con ctrl+A habro el menu
+      mainMenu_->addMenu(mnuArchivo_);
+
+      setMenuBar(mainMenu_);
+
+      actArchivoAbrir_ = new QAction(QIcon(":/new/prefix1/tool-animator.png"), tr("Abrir"), this);
+      mnuArchivo_->addAction(actArchivoAbrir_);
+
+      actArchivoGuardar_ = new QAction(tr("Guardar"), this);
+      actArchivoGuardar_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
+      mnuArchivo_->addAction(actArchivoGuardar_);
+      mnuEditar_ = new QMenu(tr("&Editar"), this);
+
+      mainMenu_->addMenu(mnuEditar_);
+
+      actEditarCopiar_ = new QAction(tr("&Copiar"), this);
+      actEditarCopiar_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+      mnuEditar_->addAction(actEditarCopiar_);
+
+      actEditarPegar_ = new QAction(tr("&Pegar"), this);
+      actEditarPegar_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
+      mnuEditar_->addAction(actEditarPegar_);
+
+      actEditarCortar_ = new QAction(tr("&Cortar"), this);
+      actEditarCortar_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+      mnuEditar_->addAction(actEditarCortar_);
+
+      actEditarDeshacer_ = new QAction(tr("&Deshacer"), this);
+      actEditarDeshacer_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+      mnuEditar_->addAction(actEditarDeshacer_);
+
+
+      actEditarRehacer_ = new QAction(tr("&Rehacer"), this);
+      actEditarRehacer_->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+      mnuEditar_->addAction(actEditarRehacer_);
+
+      mnuFormato_ = new QMenu(tr("&Formato"), this);
+      mainMenu_->addMenu(mnuFormato_);
+
+      actFormatoFuente_ = new QAction(tr("&Fuente"), this);
+      mnuFormato_->addAction(actFormatoFuente_);
+
+      actArchivoCerrar_ = new QAction(tr("Salir"), this);
+      mnuArchivo_->addAction(actArchivoCerrar_);
+
+      mnuAyuda_ = new QMenu(tr("&Ayuda"), this);
+      mainMenu_->addMenu(mnuAyuda_);
+
+      actAcercade_ = new QAction(tr("Acerca de.."), this);
+      mnuAyuda_->addAction(actAcercade_);
+
+
+      //Agregamos la barra de menú a la ventana
+      this->setMenuBar(mainMenu_);
+
+      connect(actArchivoAbrir_, SIGNAL(triggered()), this, SLOT(alAbrir()));
+      connect(actArchivoGuardar_, SIGNAL(triggered()), this, SLOT(alGuardar()));
+      connect(actArchivoCerrar_, SIGNAL(triggered()), this, SLOT(close()));
+      connect(actEditarCopiar_, SIGNAL(triggered()), txtEditor_, SLOT(copy()));
+      connect(actEditarCortar_, SIGNAL(triggered()), txtEditor_, SLOT(cut()));
+      connect(actEditarPegar_, SIGNAL(triggered()), txtEditor_, SLOT(paste()));
+      connect(actEditarDeshacer_, SIGNAL(triggered()), txtEditor_, SLOT(undo()));
+      connect(actEditarRehacer_, SIGNAL(triggered()), txtEditor_, SLOT(redo()));
+      connect(actFormatoFuente_, SIGNAL(triggered()), this, SLOT(alFuente()));
+      connect(actAcercade_, SIGNAL(triggered()), this, SLOT(actAcercade_()));
+
+}
+
+NotepadWindow::~NotepadWindow()
+{
+
+}
+
+
+void NotepadWindow::alAbrir() {
+
+ QString nombreArchivo;
+ nombreArchivo = QFileDialog::getOpenFileName(this, tr("Abrir Archivo"),"","Archivo de texto Plano (*.txt)");
+
+ if (nombreArchivo != "") {
+
+     QFile archivo;
+     archivo.setFileName(nombreArchivo);
+     if (archivo.open(QFile::ReadOnly)) {
+        txtEditor_->setPlainText(archivo.readAll());
+        archivo.close();
+     }
+ }
+
+}
+
+void NotepadWindow::alGuardar() {
+
+}
+
+void NotepadWindow::alFuente()
+{
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, txtEditor_->font(), this);
+    if (ok) {
+        // Si el usuario hizo click en OK, se establece la fuente seleccionada
+        txtEditor_->setFont(font);
+    }
+}
+
